@@ -21,6 +21,21 @@ const camera = new PerspectiveCamera(
   1000,
 );
 
+interface QueuedWindowUpdates {
+  width: number | null;
+  height: number | null;
+}
+
+const toUpdate: QueuedWindowUpdates = {
+  width: null,
+  height: null,
+};
+
+window.addEventListener("resize", () => {
+  toUpdate.width = window.innerWidth * dpi;
+  toUpdate.height = window.innerHeight * dpi;
+});
+
 const renderer = new WebGLRenderer();
 renderer.setSize(window.innerWidth * dpi, window.innerHeight * dpi, false);
 
@@ -48,7 +63,14 @@ const light = new DirectionalLight(0xffffff, 3);
 light.position.set(-1, 2, 4);
 scene.add(light);
 
-function animate() {
+function render() {
+  if (toUpdate.width != null && toUpdate.height != null) {
+    camera.aspect = toUpdate.width / toUpdate.height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(toUpdate.width, toUpdate.height, false);
+    toUpdate.width = null;
+    toUpdate.height = null;
+  }
   for (const cube of cubes) {
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
@@ -56,4 +78,4 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-renderer.setAnimationLoop(animate);
+renderer.setAnimationLoop(render);
