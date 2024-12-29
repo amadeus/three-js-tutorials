@@ -43,16 +43,24 @@ renderer.setSize(window.innerWidth * dpi, window.innerHeight * dpi, false);
 
 document.body.appendChild(renderer.domElement);
 
-const loader = new TextureLoader();
-const texture = loader.load("/wall.jpg");
-texture.colorSpace = SRGBColorSpace;
+function loadColorTexture(path: string) {
+  const texture = loader.load(path);
+  texture.colorSpace = SRGBColorSpace;
+  return texture;
+}
 
-function makeInstance(geometry: BufferGeometry, color: number, x: number) {
-  const material = new MeshBasicMaterial({
-    color,
-    map: texture,
-  });
-  const cube = new Mesh(geometry, material);
+const loader = new TextureLoader();
+const materials = [
+  new MeshBasicMaterial({ map: loadColorTexture("/flower-1.jpg") }),
+  new MeshBasicMaterial({ map: loadColorTexture("/flower-2.jpg") }),
+  new MeshBasicMaterial({ map: loadColorTexture("/flower-3.jpg") }),
+  new MeshBasicMaterial({ map: loadColorTexture("/flower-4.jpg") }),
+  new MeshBasicMaterial({ map: loadColorTexture("/flower-5.jpg") }),
+  new MeshBasicMaterial({ map: loadColorTexture("/flower-6.jpg") }),
+];
+
+function makeInstance(geometry: BufferGeometry, x: number) {
+  const cube = new Mesh(geometry, materials);
   cube.position.x = x;
   scene.add(cube);
   return cube;
@@ -61,9 +69,9 @@ function makeInstance(geometry: BufferGeometry, color: number, x: number) {
 const geometry = new BoxGeometry(1, 1, 1);
 
 const cubes = [
-  makeInstance(geometry, 0x44aa88, 0),
-  makeInstance(geometry, 0x8844aa, -2),
-  makeInstance(geometry, 0xaa8844, 2),
+  makeInstance(geometry, 0),
+  makeInstance(geometry, -2),
+  makeInstance(geometry, 2),
 ];
 
 camera.position.z = 5;
