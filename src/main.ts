@@ -10,6 +10,7 @@ import {
   DirectionalLight,
   TextureLoader,
   SRGBColorSpace,
+  LoadingManager,
   type BufferGeometry,
 } from "three";
 
@@ -22,6 +23,7 @@ const camera = new PerspectiveCamera(
   0.1,
   1000,
 );
+camera.position.z = 5;
 
 interface QueuedWindowUpdates {
   width: number | null;
@@ -49,7 +51,8 @@ function loadColorTexture(path: string) {
   return texture;
 }
 
-const loader = new TextureLoader();
+const loadManager = new LoadingManager();
+const loader = new TextureLoader(loadManager);
 const materials = [
   new MeshBasicMaterial({ map: loadColorTexture("/flower-1.jpg") }),
   new MeshBasicMaterial({ map: loadColorTexture("/flower-2.jpg") }),
@@ -68,31 +71,50 @@ function makeInstance(geometry: BufferGeometry, x: number) {
 
 const geometry = new BoxGeometry(1, 1, 1);
 
-const cubes = [
-  makeInstance(geometry, 0),
-  makeInstance(geometry, -2),
-  makeInstance(geometry, 2),
-];
-
-camera.position.z = 5;
-
 const light = new DirectionalLight(0xffffff, 3);
 light.position.set(-1, 2, 4);
 scene.add(light);
 
-function render() {
-  if (toUpdate.width != null && toUpdate.height != null) {
-    camera.aspect = toUpdate.width / toUpdate.height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(toUpdate.width, toUpdate.height, false);
-    toUpdate.width = null;
-    toUpdate.height = null;
-  }
-  for (const cube of cubes) {
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-  }
-  renderer.render(scene, camera);
+const loadingElem = document.getElementById("loading");
+if (loadingElem == null) {
+  throw new Error(`Loading Element doesn't exist`);
+}
+const progressBarElem = loadingElem.querySelector(".progressbar");
+if (!(progressBarElem instanceof HTMLElement)) {
+  throw new Error(`progressBarElem doesn't exist`);
 }
 
-renderer.setAnimationLoop(render);
+loadManager.onProgress = (
+  _urlOfLastItemLoaded: string,
+  itemsLoaded: number,
+  itemsTotal: number,
+) => {
+  const progress = itemsLoaded / itemsTotal;
+  progressBarElem.style.transform = `scaleX(${progress})`;
+};
+
+loadManager.onLoad = () => {
+  loadingElem.style.display = "none";
+  const cubes = [
+    makeInstance(geometry, 0),
+    makeInstance(geometry, -2),
+    makeInstance(geometry, 2),
+  ];
+
+  function render() {
+    if (toUpdate.width != null && toUpdate.height != null) {
+      camera.aspect = toUpdate.width / toUpdate.height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(toUpdate.width, toUpdate.height, false);
+      toUpdate.width = null;
+      toUpdate.height = null;
+    }
+    for (const cube of cubes) {
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+    }
+    renderer.render(scene, camera);
+  }
+
+  renderer.setAnimationLoop(render);
+};
