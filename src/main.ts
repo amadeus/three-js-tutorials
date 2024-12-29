@@ -5,9 +5,11 @@ import {
   PerspectiveCamera,
   WebGLRenderer,
   BoxGeometry,
-  MeshPhongMaterial,
+  MeshBasicMaterial,
   Mesh,
   DirectionalLight,
+  TextureLoader,
+  SRGBColorSpace,
   type BufferGeometry,
 } from "three";
 
@@ -41,8 +43,15 @@ renderer.setSize(window.innerWidth * dpi, window.innerHeight * dpi, false);
 
 document.body.appendChild(renderer.domElement);
 
+const loader = new TextureLoader();
+const texture = loader.load("/wall.jpg");
+texture.colorSpace = SRGBColorSpace;
+
 function makeInstance(geometry: BufferGeometry, color: number, x: number) {
-  const material = new MeshPhongMaterial({ color });
+  const material = new MeshBasicMaterial({
+    color,
+    map: texture,
+  });
   const cube = new Mesh(geometry, material);
   cube.position.x = x;
   scene.add(cube);
