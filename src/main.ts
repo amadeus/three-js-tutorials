@@ -1,4 +1,4 @@
-import "./style.css";
+import './style.css';
 
 import {
   Scene,
@@ -12,17 +12,12 @@ import {
   SRGBColorSpace,
   LoadingManager,
   type BufferGeometry,
-} from "three";
+} from 'three';
 
 const dpi = window.devicePixelRatio ?? 1;
 
 const scene = new Scene();
-const camera = new PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000,
-);
+const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 5;
 
 interface QueuedWindowUpdates {
@@ -35,7 +30,7 @@ const toUpdate: QueuedWindowUpdates = {
   height: null,
 };
 
-window.addEventListener("resize", () => {
+window.addEventListener('resize', () => {
   toUpdate.width = window.innerWidth * dpi;
   toUpdate.height = window.innerHeight * dpi;
 });
@@ -54,12 +49,12 @@ function loadColorTexture(path: string) {
 const loadManager = new LoadingManager();
 const loader = new TextureLoader(loadManager);
 const materials = [
-  new MeshBasicMaterial({ map: loadColorTexture("/flower-1.jpg") }),
-  new MeshBasicMaterial({ map: loadColorTexture("/flower-2.jpg") }),
-  new MeshBasicMaterial({ map: loadColorTexture("/flower-3.jpg") }),
-  new MeshBasicMaterial({ map: loadColorTexture("/flower-4.jpg") }),
-  new MeshBasicMaterial({ map: loadColorTexture("/flower-5.jpg") }),
-  new MeshBasicMaterial({ map: loadColorTexture("/flower-6.jpg") }),
+  new MeshBasicMaterial({map: loadColorTexture('/flower-1.jpg')}),
+  new MeshBasicMaterial({map: loadColorTexture('/flower-2.jpg')}),
+  new MeshBasicMaterial({map: loadColorTexture('/flower-3.jpg')}),
+  new MeshBasicMaterial({map: loadColorTexture('/flower-4.jpg')}),
+  new MeshBasicMaterial({map: loadColorTexture('/flower-5.jpg')}),
+  new MeshBasicMaterial({map: loadColorTexture('/flower-6.jpg')}),
 ];
 
 function makeInstance(geometry: BufferGeometry, x: number) {
@@ -75,31 +70,23 @@ const light = new DirectionalLight(0xffffff, 3);
 light.position.set(-1, 2, 4);
 scene.add(light);
 
-const loadingElem = document.getElementById("loading");
+const loadingElem = document.getElementById('loading');
 if (loadingElem == null) {
   throw new Error(`Loading Element doesn't exist`);
 }
-const progressBarElem = loadingElem.querySelector(".progressbar");
+const progressBarElem = loadingElem.querySelector('.progressbar');
 if (!(progressBarElem instanceof HTMLElement)) {
   throw new Error(`progressBarElem doesn't exist`);
 }
 
-loadManager.onProgress = (
-  _urlOfLastItemLoaded: string,
-  itemsLoaded: number,
-  itemsTotal: number,
-) => {
+loadManager.onProgress = (_urlOfLastItemLoaded: string, itemsLoaded: number, itemsTotal: number) => {
   const progress = itemsLoaded / itemsTotal;
   progressBarElem.style.transform = `scaleX(${progress})`;
 };
 
 loadManager.onLoad = () => {
-  loadingElem.style.display = "none";
-  const cubes = [
-    makeInstance(geometry, 0),
-    makeInstance(geometry, -2),
-    makeInstance(geometry, 2),
-  ];
+  loadingElem.style.display = 'none';
+  const cubes = [makeInstance(geometry, 0), makeInstance(geometry, -2), makeInstance(geometry, 2)];
 
   function render() {
     if (toUpdate.width != null && toUpdate.height != null) {
